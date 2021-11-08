@@ -11,9 +11,15 @@ class ViewController: UIViewController {
         $0.translatesAutoresizingMaskIntoConstraints = false
     }
 
+    private var previewView = PreviewView()
+
     // MARK: - Properties
 
     let cameraHelper = CameraHelper()
+
+    var windowOrientation: UIInterfaceOrientation {
+        return view.window?.windowScene?.interfaceOrientation ?? .unknown
+    }
 
     // MARK: - View Lifecycle
 
@@ -26,7 +32,7 @@ class ViewController: UIViewController {
     // MARK: - Methods
 
     private func setUpCamera() {
-        cameraHelper.prepareDevices()
+        previewView.session = cameraHelper.session
     }
 
     private func initialize() {
