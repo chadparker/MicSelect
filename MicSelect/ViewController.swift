@@ -2,6 +2,8 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    // MARK: - Views
+
     private lazy var titleLabel = UILabel().configure {
         $0.text = "MicSelect"
         $0.textAlignment = .center
@@ -9,9 +11,22 @@ class ViewController: UIViewController {
         $0.translatesAutoresizingMaskIntoConstraints = false
     }
 
+    // MARK: - Properties
+
+    let cameraHelper = CameraHelper()
+
+    // MARK: - View Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         initialize()
+        setUpCamera()
+    }
+
+    // MARK: - Methods
+
+    private func setUpCamera() {
+        cameraHelper.prepareDevices()
     }
 
     private func initialize() {
