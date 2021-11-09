@@ -166,6 +166,6 @@ class ViewController: UIViewController, CameraHelperDelegate {
     private func setUpCamera() {
         previewView.session = cameraHelper.session
         cameraHelper.delegate = self
-        cameraHelper.checkAuthorization()
+        cameraHelper.checkVideoAuthorization()
     }
 }

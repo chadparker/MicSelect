@@ -60,18 +60,11 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
 
     // MARK: - Public
 
-    func checkAuthorization() {
+    func checkVideoAuthorization() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
             break
         case .notDetermined:
-            /*
-             Suspend the session queue to delay session
-             setup until the access request has completed.
-
-             Note that audio access will be implicitly requested when we
-             create an AVCaptureDeviceInput for audio during session setup.
-             */
             sessionQueue.suspend()
             AVCaptureDevice.requestAccess(for: .video, completionHandler: { granted in
                 if !granted {
@@ -79,50 +72,16 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
                 }
                 self.sessionQueue.resume()
             })
-
         default:
             setupResult = .notAuthorized
         }
 
-        /*
-         Set up the capture session.
-         In general, it's not safe to mutate an AVCaptureSession or any of its
-         inputs, outputs, or connections from multiple threads at the same time.
-
-         Don't perform these tasks on the main queue because
-         AVCaptureSession.startRunning() is a blocking call, which can
-         take a long time. Dispatch session setup to the sessionQueue, so
-         that the main queue isn't blocked, which keeps the UI responsive.
-         */
         sessionQueue.async {
             self.configureSession()
         }
     }
 
-    func startSession() {
-        sessionQueue.async {
-            switch self.setupResult {
-            case .success:
-                self.session.startRunning()
-                self.isSessionRunning = self.session.isRunning
-            case .notAuthorized:
-                fatalError("not authorized")
-            case .configurationFailed:
-                fatalError("config failed")
-            }
-        }
-    }
-
-    func stopSession() {
-        sessionQueue.async {
-            if self.setupResult == .success {
-                self.session.stopRunning()
-                self.isSessionRunning = self.session.isRunning
-            }
-        }
-    }
-
-    private func configureSession() { // Call this on the session queue
+    private func configureSession() {
         guard setupResult == .success else { return }
 
         session.beginConfiguration()
@@ -153,16 +112,6 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
                 self.videoDeviceInput = videoDeviceInput
 
                 DispatchQueue.main.async {
-                    /*
-                     Dispatch video streaming to the main queue because AVCaptureVideoPreviewLayer is the backing layer for PreviewView.
-                     You can manipulate UIView only on the main thread.
-                     Note: As an exception to the above rule, it's not necessary to serialize video orientation changes
-                     on the AVCaptureVideoPreviewLayer’s connection with other session manipulation.
-
-                     Use the window scene's orientation as the initial video orientation. Subsequent orientation changes are
-                     handled by CameraViewController.viewWillTransition(to:with:).
-                     */
-
                     var initialVideoOrientation: AVCaptureVideoOrientation = .portrait
                     if self.delegate.windowOrientation != .unknown {
                         if let videoOrientation = AVCaptureVideoOrientation(interfaceOrientation: self.delegate.windowOrientation) {
@@ -184,7 +133,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
             return
         }
 
-        // Add an audio input device.
+        // Add an audio input device
         do {
             let audioDevice = AVCaptureDevice.default(for: .audio)
             let audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice!)
@@ -199,6 +148,29 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
 
         session.commitConfiguration()
+    }
+
+    func startSession() {
+        sessionQueue.async {
+            switch self.setupResult {
+            case .success:
+                self.session.startRunning()
+                self.isSessionRunning = self.session.isRunning
+            case .notAuthorized:
+                fatalError("not authorized")
+            case .configurationFailed:
+                fatalError("config failed")
+            }
+        }
+    }
+
+    func stopSession() {
+        sessionQueue.async {
+            if self.setupResult == .success {
+                self.session.stopRunning()
+                self.isSessionRunning = self.session.isRunning
+            }
+        }
     }
 
     private func configureVideoOutput() {
