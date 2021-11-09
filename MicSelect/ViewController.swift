@@ -5,32 +5,44 @@ class ViewController: UIViewController, CameraHelperDelegate {
 
     // MARK: - Views
 
-    private lazy var titleLabel = UILabel().configure {
-        $0.text = "MicSelect"
-        $0.textAlignment = .center
-        $0.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+    private lazy var recordButton = UIButton(type: .roundedRect).configure {
+        $0.setTitle("Record", for: .normal)
+    }
+    private lazy var resumeButton = UIButton(type: .roundedRect).configure {
+        $0.setTitle("Resume", for: .normal)
+    }
+    private lazy var cameraButton = UIButton(type: .roundedRect).configure {
+        $0.setTitle("Switch Camera", for: .normal)
+    }
+
+    private lazy var buttonStackView = UIStackView(
+        arrangedSubviews: [resumeButton, recordButton, cameraButton]
+    ).configure {
+        $0.axis = .horizontal
+        $0.distribution = .fillEqually
         $0.translatesAutoresizingMaskIntoConstraints = false
     }
-    private lazy var recordButton = UIButton(type: .roundedRect)
-    private lazy var resumeButton = UIButton(type: .roundedRect)
-    private lazy var cameraButton = UIButton(type: .roundedRect)
 
     private lazy var previewView = PreviewView()
     private lazy var spinner = UIActivityIndicatorView(style: .large)
 
+    private lazy var mainStackView = UIStackView(
+        arrangedSubviews: [previewView, buttonStackView]
+    ).configure {
+        $0.axis = .vertical
+        $0.translatesAutoresizingMaskIntoConstraints = false
+    }
+
     // MARK: - Properties
 
-    var cameraHelper: CameraHelper!
+    private lazy var cameraHelper = CameraHelper(previewView: previewView)
 
     // MARK: - View Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpViews()
-        cameraHelper = CameraHelper(delegate: self, previewView: previewView)
-        previewView.session = cameraHelper.session
-        cameraHelper.previewView = previewView
-        cameraHelper.checkAuthorization()
+        setUpCamera()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -65,12 +77,6 @@ class ViewController: UIViewController, CameraHelperDelegate {
         view.window?.windowScene?.interfaceOrientation ?? .unknown
     }
 
-    var cameraSwitchingEnabled: Bool = false {
-        didSet {
-
-        }
-    }
-
     var recordingEnabled: Bool = false {
         didSet {
             //
@@ -100,15 +106,15 @@ class ViewController: UIViewController, CameraHelperDelegate {
         self.present(alertController, animated: true, completion: nil)
     }
 
+    var cameraSwitchingEnabled: Bool = false {
+        didSet {
+
+        }
+    }
+
     // MARK: - Actions
 
     @IBAction private func toggleMovieRecording(_ recordButton: UIButton) {
-        /*
-         Disable the Camera button until recording finishes, and disable
-         the Record button until recording starts or finishes.
-
-         See the AVCaptureFileOutputRecordingDelegate methods.
-         */
         cameraButton.isEnabled = false
         recordButton.isEnabled = false
 
@@ -141,15 +147,25 @@ class ViewController: UIViewController, CameraHelperDelegate {
     // MARK: - Methods
 
     private func setUpViews() {
-        view.addSubview(titleLabel)
-        NSLayoutConstraint.activate([
-            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            titleLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
+        recordButton.isEnabled = false
         resumeButton.isHidden = true
-        // add previewView
-        // add recordButton
-        // add resumeButton
-        // add cameraButton
+        cameraButton.isEnabled = false
+
+        buttonStackView.heightAnchor.constraint(equalToConstant: 150).isActive = true
+
+        view.addSubview(mainStackView)
+        NSLayoutConstraint.activate([
+            mainStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            mainStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            mainStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            mainStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+        // add spinner
+    }
+
+    private func setUpCamera() {
+        previewView.session = cameraHelper.session
+        cameraHelper.delegate = self
+        cameraHelper.checkAuthorization()
     }
 }

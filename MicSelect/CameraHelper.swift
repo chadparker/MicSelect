@@ -54,8 +54,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
 
     // MARK: - Init
 
-    init(delegate: CameraHelperDelegate, previewView: PreviewView) {
-        self.delegate = delegate
+    init(previewView: PreviewView) {
         self.previewView = previewView
     }
 
