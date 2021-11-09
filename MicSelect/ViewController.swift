@@ -24,7 +24,9 @@ class ViewController: UIViewController, CameraHelperDelegate {
     }
 
     private lazy var previewView = PreviewView()
-    private lazy var spinner = UIActivityIndicatorView(style: .large)
+    private lazy var spinner = UIActivityIndicatorView(style: .large).configure {
+        $0.color = UIColor.yellow
+    }
 
     private lazy var mainStackView = UIStackView(
         arrangedSubviews: [previewView, buttonStackView]
@@ -160,7 +162,8 @@ class ViewController: UIViewController, CameraHelperDelegate {
             mainStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             mainStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
-        // add spinner
+
+        previewView.addSubview(self.spinner)
     }
 
     private func setUpCamera() {
