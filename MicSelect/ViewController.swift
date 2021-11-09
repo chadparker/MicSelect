@@ -79,15 +79,15 @@ class ViewController: UIViewController, CameraHelperDelegate {
 
     var recordingEnabled: Bool = false {
         didSet {
-            //
+            recordButton.isEnabled = recordingEnabled
         }
     }
 
     var isRecording: Bool = false {
         didSet {
-            self.recordButton.isEnabled = true
+            recordButton.isEnabled = true
             if isRecording {
-                self.recordButton.setImage(#imageLiteral(resourceName: "CaptureStop"), for: [])
+                recordButton.setImage(#imageLiteral(resourceName: "CaptureStop"), for: [])
             }
         }
     }
@@ -103,7 +103,7 @@ class ViewController: UIViewController, CameraHelperDelegate {
         let alertController = UIAlertController(title: "AVCam", message: message, preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: NSLocalizedString("OK", comment: "Alert OK button"), style: .cancel, handler: nil)
         alertController.addAction(cancelAction)
-        self.present(alertController, animated: true, completion: nil)
+        present(alertController, animated: true, completion: nil)
     }
 
     var cameraSwitchingEnabled: Bool = false {

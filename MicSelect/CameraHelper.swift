@@ -148,6 +148,26 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
 
         session.commitConfiguration()
+
+        // Set up video output
+        let movieFileOutput = AVCaptureMovieFileOutput()
+        if self.session.canAddOutput(movieFileOutput) {
+            self.session.addOutput(movieFileOutput)
+            self.session.sessionPreset = .high
+
+            if let connection = movieFileOutput.connection(with: .video) {
+                if connection.isVideoStabilizationSupported {
+                    connection.preferredVideoStabilizationMode = .auto
+                }
+            }
+            self.session.commitConfiguration()
+
+            self.movieFileOutput = movieFileOutput
+
+            DispatchQueue.main.async {
+                self.delegate.recordingEnabled = true
+            }
+        }
     }
 
     func startSession() {
@@ -169,31 +189,6 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
             if self.setupResult == .success {
                 self.session.stopRunning()
                 self.isSessionRunning = self.session.isRunning
-            }
-        }
-    }
-
-    private func configureVideoOutput() {
-        sessionQueue.async {
-            let movieFileOutput = AVCaptureMovieFileOutput()
-
-            if self.session.canAddOutput(movieFileOutput) {
-                self.session.beginConfiguration()
-                self.session.addOutput(movieFileOutput)
-                self.session.sessionPreset = .high
-
-                if let connection = movieFileOutput.connection(with: .video) {
-                    if connection.isVideoStabilizationSupported {
-                        connection.preferredVideoStabilizationMode = .auto
-                    }
-                }
-                self.session.commitConfiguration()
-
-                self.movieFileOutput = movieFileOutput
-
-                DispatchQueue.main.async {
-                    self.delegate.recordingEnabled = true
-                }
             }
         }
     }
