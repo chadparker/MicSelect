@@ -220,7 +220,8 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
     }
 
-    // does this do what it sounds like?
+    // MARK: - Device Configuration
+
     func changeCamera(_ completion: @escaping () -> Void) {
         sessionQueue.async {
             let currentVideoDevice = self.videoDeviceInput.device
@@ -331,6 +332,8 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
     }
 
+    // MARK: - Recording
+
     func toggleMovieRecording(_ completion: @escaping () -> Void) {
         guard let movieFileOutput = self.movieFileOutput else {
             completion()
@@ -440,6 +443,8 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
     }
 
+    // MARK: - KVO & Notifications
+
     private func addObservers() {
         let keyValueObservation = session.observe(\.isRunning, options: .new) { _, change in
             guard let isSessionRunning = change.newValue else { return }
@@ -493,6 +498,8 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
         keyValueObservations.removeAll()
     }
+
+    // MARK: - Error Handling
 
     @objc func sessionRuntimeError(notification: NSNotification) {
         guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else { return }
@@ -604,6 +611,8 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
     }
 }
 
+// MARK: - Extensions
+
 extension AVCaptureVideoOrientation {
     init?(deviceOrientation: UIDeviceOrientation) {
         switch deviceOrientation {
@@ -628,13 +637,10 @@ extension AVCaptureVideoOrientation {
 
 extension AVCaptureDevice.DiscoverySession {
     var uniqueDevicePositionsCount: Int {
-
         var uniqueDevicePositions = [AVCaptureDevice.Position]()
-
         for device in devices where !uniqueDevicePositions.contains(device.position) {
             uniqueDevicePositions.append(device.position)
         }
-
         return uniqueDevicePositions.count
     }
 }
