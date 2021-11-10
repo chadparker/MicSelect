@@ -140,38 +140,6 @@ class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
 
         // Add an audio input device
         do {
-            print("unique video positions: \(self.videoDeviceDiscoverySession.uniqueDevicePositionsCount)")
-
-            var audioDeviceDiscoverySession = AVCaptureDevice.DiscoverySession(
-                deviceTypes: [.builtInMicrophone],
-                mediaType: .audio,
-                position: .back
-            )
-            dump(audioDeviceDiscoverySession)
-            print("BACK")
-            print("unique audio positions: \(audioDeviceDiscoverySession.uniqueDevicePositionsCount)")
-            print(audioDeviceDiscoverySession.devices.count)
-
-            audioDeviceDiscoverySession = AVCaptureDevice.DiscoverySession(
-                deviceTypes: [.builtInMicrophone],
-                mediaType: .audio,
-                position: .front
-            )
-            dump(audioDeviceDiscoverySession)
-            print("FRONT")
-            print("unique audio positions: \(audioDeviceDiscoverySession.uniqueDevicePositionsCount)")
-            print(audioDeviceDiscoverySession.devices.count)
-
-            audioDeviceDiscoverySession = AVCaptureDevice.DiscoverySession(
-                deviceTypes: [.builtInMicrophone],
-                mediaType: .audio,
-                position: .unspecified
-            )
-            dump(audioDeviceDiscoverySession)
-            print("UNSPECIFIED")
-            print("unique audio positions: \(audioDeviceDiscoverySession.uniqueDevicePositionsCount)")
-            print(audioDeviceDiscoverySession.devices.count)
-
             let audioDevice = AVCaptureDevice.default(for: .audio)
             let audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice!)
 
