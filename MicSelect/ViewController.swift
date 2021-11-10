@@ -26,16 +26,11 @@ class ViewController: UIViewController, CameraHelperDelegate {
         $0.translatesAutoresizingMaskIntoConstraints = false
     }
 
-    private lazy var previewView = PreviewView()
+    private lazy var previewView = PreviewView().configure {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+    }
     private lazy var spinner = UIActivityIndicatorView(style: .large).configure {
         $0.color = UIColor.yellow
-    }
-
-    private lazy var mainStackView = UIStackView(
-        arrangedSubviews: [previewView, buttonStackView]
-    ).configure {
-        $0.axis = .vertical
-        $0.translatesAutoresizingMaskIntoConstraints = false
     }
 
     // MARK: - Properties
@@ -124,7 +119,6 @@ class ViewController: UIViewController, CameraHelperDelegate {
         cameraHelper.resumeInterruptedSession()
     }
 
-    // add gesture recognizer
     @objc private func focusAndExposeTap(_ gestureRecognizer: UITapGestureRecognizer) {
         let devicePoint = previewView.videoPreviewLayer.captureDevicePointConverted(
             fromLayerPoint: gestureRecognizer.location(in: gestureRecognizer.view)
@@ -140,17 +134,29 @@ class ViewController: UIViewController, CameraHelperDelegate {
         resumeButton.isHidden = true
         isRecording(false)
 
-        buttonStackView.heightAnchor.constraint(equalToConstant: 150).isActive = true
+        view.backgroundColor = .black
 
-        view.addSubview(mainStackView)
+        view.addSubview(previewView)
         NSLayoutConstraint.activate([
-            mainStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            mainStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            mainStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            mainStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            previewView.topAnchor.constraint(equalTo: view.topAnchor),
+            previewView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            previewView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            previewView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+
+        view.addSubview(buttonStackView)
+        NSLayoutConstraint.activate([
+            buttonStackView.heightAnchor.constraint(equalToConstant: 150),
+            buttonStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            buttonStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            buttonStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
 
         previewView.addSubview(self.spinner)
+
+        view.addGestureRecognizer(
+            UITapGestureRecognizer(target: self, action: #selector(focusAndExposeTap))
+        )
     }
 
     private func setUpCamera() {
