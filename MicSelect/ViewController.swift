@@ -1,7 +1,7 @@
 import AVFoundation
 import UIKit
 
-class ViewController: UIViewController, CameraHelperDelegate {
+class ViewController: UIViewController, CameraControllerDelegate {
 
     // MARK: - Views
 
@@ -35,7 +35,7 @@ class ViewController: UIViewController, CameraHelperDelegate {
 
     // MARK: - Properties
 
-    private lazy var cameraHelper = CameraHelper(previewView: previewView)
+    private lazy var cameraHelper = CameraController(previewView: previewView)
 
     // MARK: - View Lifecycle
 
@@ -71,7 +71,7 @@ class ViewController: UIViewController, CameraHelperDelegate {
         cameraHelper.shouldAutorotate
     }
 
-    // MARK: - CameraHelperDelegate
+    // MARK: - CameraControllerDelegate
 
     var windowOrientation: UIInterfaceOrientation {
         view.window?.windowScene?.interfaceOrientation ?? .unknown

@@ -2,7 +2,7 @@ import AVFoundation
 import Photos
 import UIKit
 
-protocol CameraHelperDelegate: AnyObject {
+protocol CameraControllerDelegate: AnyObject {
     var windowOrientation: UIInterfaceOrientation { get }
     func recordingEnabled(_ enabled: Bool)
     func isRecording(_ isRecording: Bool)
@@ -11,7 +11,7 @@ protocol CameraHelperDelegate: AnyObject {
     func resumeFailed()
 }
 
-class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
+class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
 
     // MARK: - Identifiers
 
@@ -23,7 +23,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
 
     // MARK: - Properties
 
-    weak var delegate: CameraHelperDelegate!
+    weak var delegate: CameraControllerDelegate!
     private weak var previewView: PreviewView!
 
     let session = AVCaptureSession()
@@ -140,6 +140,38 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
 
         // Add an audio input device
         do {
+            print("unique video positions: \(self.videoDeviceDiscoverySession.uniqueDevicePositionsCount)")
+
+            var audioDeviceDiscoverySession = AVCaptureDevice.DiscoverySession(
+                deviceTypes: [.builtInMicrophone],
+                mediaType: .audio,
+                position: .back
+            )
+            dump(audioDeviceDiscoverySession)
+            print("BACK")
+            print("unique audio positions: \(audioDeviceDiscoverySession.uniqueDevicePositionsCount)")
+            print(audioDeviceDiscoverySession.devices.count)
+
+            audioDeviceDiscoverySession = AVCaptureDevice.DiscoverySession(
+                deviceTypes: [.builtInMicrophone],
+                mediaType: .audio,
+                position: .front
+            )
+            dump(audioDeviceDiscoverySession)
+            print("FRONT")
+            print("unique audio positions: \(audioDeviceDiscoverySession.uniqueDevicePositionsCount)")
+            print(audioDeviceDiscoverySession.devices.count)
+
+            audioDeviceDiscoverySession = AVCaptureDevice.DiscoverySession(
+                deviceTypes: [.builtInMicrophone],
+                mediaType: .audio,
+                position: .unspecified
+            )
+            dump(audioDeviceDiscoverySession)
+            print("UNSPECIFIED")
+            print("unique audio positions: \(audioDeviceDiscoverySession.uniqueDevicePositionsCount)")
+            print(audioDeviceDiscoverySession.devices.count)
+
             let audioDevice = AVCaptureDevice.default(for: .audio)
             let audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice!)
 

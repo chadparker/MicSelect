@@ -14,7 +14,7 @@
 		87FA86532739CF5B006F7BC0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 87FA86522739CF5B006F7BC0 /* Assets.xcassets */; };
 		87FA86562739CF5B006F7BC0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 87FA86542739CF5B006F7BC0 /* LaunchScreen.storyboard */; };
 		87FA865E2739D4EE006F7BC0 /* Configurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FA865D2739D4EE006F7BC0 /* Configurable.swift */; };
-		87FA86602739DA0C006F7BC0 /* CameraHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FA865F2739DA0C006F7BC0 /* CameraHelper.swift */; };
+		87FA86602739DA0C006F7BC0 /* CameraController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FA865F2739DA0C006F7BC0 /* CameraController.swift */; };
 		87FA86622739DE0A006F7BC0 /* PreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FA86612739DE0A006F7BC0 /* PreviewView.swift */; };
 /* End PBXBuildFile section */
 
@@ -28,7 +28,7 @@
 		87FA86552739CF5B006F7BC0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		87FA86572739CF5B006F7BC0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		87FA865D2739D4EE006F7BC0 /* Configurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configurable.swift; sourceTree = "<group>"; };
-		87FA865F2739DA0C006F7BC0 /* CameraHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraHelper.swift; sourceTree = "<group>"; };
+		87FA865F2739DA0C006F7BC0 /* CameraController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraController.swift; sourceTree = "<group>"; };
 		87FA86612739DE0A006F7BC0 /* PreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -65,7 +65,7 @@
 				87FA86492739CF59006F7BC0 /* AppDelegate.swift */,
 				87FA864B2739CF59006F7BC0 /* SceneDelegate.swift */,
 				87FA864D2739CF59006F7BC0 /* ViewController.swift */,
-				87FA865F2739DA0C006F7BC0 /* CameraHelper.swift */,
+				87FA865F2739DA0C006F7BC0 /* CameraController.swift */,
 				87FA86612739DE0A006F7BC0 /* PreviewView.swift */,
 				87FA865D2739D4EE006F7BC0 /* Configurable.swift */,
 				87FA864F2739CF59006F7BC0 /* Main.storyboard */,
@@ -149,7 +149,7 @@
 			files = (
 				87FA864E2739CF59006F7BC0 /* ViewController.swift in Sources */,
 				87FA864A2739CF59006F7BC0 /* AppDelegate.swift in Sources */,
-				87FA86602739DA0C006F7BC0 /* CameraHelper.swift in Sources */,
+				87FA86602739DA0C006F7BC0 /* CameraController.swift in Sources */,
 				87FA865E2739D4EE006F7BC0 /* Configurable.swift in Sources */,
 				87FA864C2739CF59006F7BC0 /* SceneDelegate.swift in Sources */,
 				87FA86622739DE0A006F7BC0 /* PreviewView.swift in Sources */,
