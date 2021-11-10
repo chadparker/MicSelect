@@ -24,7 +24,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
     // MARK: - Properties
 
     weak var delegate: CameraHelperDelegate!
-    weak var previewView: PreviewView!
+    private weak var previewView: PreviewView!
 
     let session = AVCaptureSession()
     // Communicate with the session and other session objects on this queue
@@ -58,7 +58,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
         self.previewView = previewView
     }
 
-    // MARK: - Public
+    // MARK: - Configuration
 
     func checkVideoAuthorization() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -147,9 +147,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
             print("Could not create audio device input: \(error)")
         }
 
-        session.commitConfiguration()
-
-        // Set up video output
+        // Add the video output
         let movieFileOutput = AVCaptureMovieFileOutput()
         if self.session.canAddOutput(movieFileOutput) {
             self.session.addOutput(movieFileOutput)
@@ -168,12 +166,17 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
                 self.delegate.recordingEnabled = true
             }
         }
+
+        session.commitConfiguration()
     }
+
+    // MARK: - Session Start/Stop
 
     func startSession() {
         sessionQueue.async {
             switch self.setupResult {
             case .success:
+                self.addObservers()
                 self.session.startRunning()
                 self.isSessionRunning = self.session.isRunning
             case .notAuthorized:
@@ -189,6 +192,30 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
             if self.setupResult == .success {
                 self.session.stopRunning()
                 self.isSessionRunning = self.session.isRunning
+                self.removeObservers()
+            }
+        }
+    }
+
+    func resumeInterruptedSession() {
+        sessionQueue.async {
+            /*
+             The session might fail to start running, for example, if a phone or FaceTime call is still
+             using audio or video. This failure is communicated by the session posting a
+             runtime error notification. To avoid repeatedly failing to start the session,
+             only try to restart the session in the error handler if you aren't
+             trying to resume the session.
+             */
+            self.session.startRunning()
+            self.isSessionRunning = self.session.isRunning
+            if !self.session.isRunning {
+                DispatchQueue.main.async {
+                    self.delegate.resumeFailed()
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.delegate.resumingEnabled = false
+                }
             }
         }
     }
@@ -300,29 +327,6 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
                 device.unlockForConfiguration()
             } catch {
                 print("Could not lock device for configuration: \(error)")
-            }
-        }
-    }
-
-    func resumeInterruptedSession() {
-        sessionQueue.async {
-            /*
-             The session might fail to start running, for example, if a phone or FaceTime call is still
-             using audio or video. This failure is communicated by the session posting a
-             runtime error notification. To avoid repeatedly failing to start the session,
-             only try to restart the session in the error handler if you aren't
-             trying to resume the session.
-             */
-            self.session.startRunning()
-            self.isSessionRunning = self.session.isRunning
-            if !self.session.isRunning {
-                DispatchQueue.main.async {
-                    self.delegate.resumeFailed()
-                }
-            } else {
-                DispatchQueue.main.async {
-                    self.delegate.resumingEnabled = false
-                }
             }
         }
     }
@@ -481,8 +485,14 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
                                                object: session)
     }
 
+    private func removeObservers() {
+        NotificationCenter.default.removeObserver(self)
 
-
+        for keyValueObservation in keyValueObservations {
+            keyValueObservation.invalidate()
+        }
+        keyValueObservations.removeAll()
+    }
 
     @objc func sessionRuntimeError(notification: NSNotification) {
         guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else { return }

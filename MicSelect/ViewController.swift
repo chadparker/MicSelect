@@ -125,8 +125,6 @@ class ViewController: UIViewController, CameraHelperDelegate {
         }
     }
 
-    // resume button action
-
     @IBAction private func changeCamera(_ cameraButton: UIButton) {
         // disable button
         cameraHelper.changeCamera {
