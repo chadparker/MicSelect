@@ -117,16 +117,10 @@ class ViewController: UIViewController, CameraHelperDelegate {
     // MARK: - Actions
 
     @IBAction private func toggleMovieRecording(_ recordButton: UIButton) {
-        cameraButton.isEnabled = false
-        recordButton.isEnabled = false
-
-        cameraHelper.toggleMovieRecording {
-            // re-enable buttons, or use delegate methods
-        }
+        cameraHelper.toggleMovieRecording()
     }
 
     @IBAction private func switchCamera(_ cameraButton: UIButton) {
-        // disable button
         cameraHelper.switchCamera()
     }
 

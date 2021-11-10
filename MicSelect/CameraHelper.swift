@@ -46,7 +46,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
         return true
     }
 
-    let videoDeviceDiscoverySession = AVCaptureDevice.DiscoverySession(
+    private let videoDeviceDiscoverySession = AVCaptureDevice.DiscoverySession(
         deviceTypes: [.builtInWideAngleCamera, .builtInDualCamera, .builtInTrueDepthCamera, .builtInDualWideCamera],
         mediaType: .video,
         position: .unspecified
@@ -223,6 +223,9 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
     // MARK: - Device Configuration
 
     func switchCamera() {
+        delegate.cameraSwitchingEnabled = false
+        delegate.recordingEnabled = false
+
         sessionQueue.async {
             let currentVideoDevice = self.videoDeviceInput.device
             let currentPosition = currentVideoDevice.position
@@ -283,6 +286,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
             }
 
             DispatchQueue.main.async {
+                self.delegate.cameraSwitchingEnabled = true
                 self.delegate.recordingEnabled = self.movieFileOutput != nil
             }
         }
@@ -298,17 +302,14 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
         )
     }
 
-    func focus(
-        with focusMode: AVCaptureDevice.FocusMode,
-        exposureMode: AVCaptureDevice.ExposureMode,
-        at devicePoint: CGPoint,
-        monitorSubjectAreaChange: Bool
-    ) {
+    func focus(with focusMode: AVCaptureDevice.FocusMode,
+               exposureMode: AVCaptureDevice.ExposureMode,
+               at devicePoint: CGPoint,
+               monitorSubjectAreaChange: Bool) {
         sessionQueue.async {
             let device = self.videoDeviceInput.device
             do {
                 try device.lockForConfiguration()
-
                 /*
                  Setting (focus/exposure)PointOfInterest alone does not initiate a (focus/exposure) operation.
                  Call set(Focus/Exposure)Mode() to apply the new point of interest.
@@ -317,12 +318,10 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
                     device.focusPointOfInterest = devicePoint
                     device.focusMode = focusMode
                 }
-
                 if device.isExposurePointOfInterestSupported && device.isExposureModeSupported(exposureMode) {
                     device.exposurePointOfInterest = devicePoint
                     device.exposureMode = exposureMode
                 }
-
                 device.isSubjectAreaChangeMonitoringEnabled = monitorSubjectAreaChange
                 device.unlockForConfiguration()
             } catch {
@@ -333,14 +332,15 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
 
     // MARK: - Recording
 
-    func toggleMovieRecording(_ completion: @escaping () -> Void) {
+    func toggleMovieRecording() {
         guard let movieFileOutput = self.movieFileOutput else {
-            completion()
             return
         }
 
-        let videoPreviewLayerOrientation = previewView.videoPreviewLayer.connection?.videoOrientation
+        delegate.recordingEnabled = false
+        delegate.cameraSwitchingEnabled = false
 
+        let videoPreviewLayerOrientation = previewView.videoPreviewLayer.connection?.videoOrientation
         sessionQueue.async {
             if !movieFileOutput.isRecording {
                 if UIDevice.current.isMultitaskingSupported {
@@ -369,15 +369,18 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
 
     // MARK: - AVCaptureFileOutputRecordingDelegate
 
+    // Did start recording
     func fileOutput(_ output: AVCaptureFileOutput,
                     didStartRecordingTo fileURL: URL,
                     from connections: [AVCaptureConnection]) {
         // Enable the Record button to let the user stop recording.
         DispatchQueue.main.async {
             self.delegate.recordingEnabled = true
+            self.delegate.isRecording = true
         }
     }
 
+    // Did finish recording
     func fileOutput(_ output: AVCaptureFileOutput,
                     didFinishRecordingTo outputFileURL: URL,
                     from connections: [AVCaptureConnection],
@@ -392,7 +395,6 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
                     print("Could not remove file at url: \(outputFileURL)")
                 }
             }
-
             if let currentBackgroundRecordingID = backgroundRecordingID {
                 backgroundRecordingID = UIBackgroundTaskIdentifier.invalid
 
@@ -562,6 +564,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
             if reason == .audioDeviceInUseByAnotherClient || reason == .videoDeviceInUseByAnotherClient {
                 showResumeButton = true
             } else if reason == .videoDeviceNotAvailableWithMultipleForegroundApps {
+                // TODO: add cameraUnavailableLabel
                 // Fade-in a label to inform the user that the camera is unavailable.
 //                cameraUnavailableLabel.alpha = 0
 //                cameraUnavailableLabel.isHidden = false
@@ -572,13 +575,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
                 print("Session stopped running due to shutdown system pressure level.")
             }
             if showResumeButton {
-                // Fade-in a button to enable the user to try to resume the session running.
                 self.delegate.resumingEnabled = true
-//                resumeButton.alpha = 0
-//                resumeButton.isHidden = false
-//                UIView.animate(withDuration: 0.25) {
-//                    self.resumeButton.alpha = 1
-//                }
             }
         }
     }
@@ -589,15 +586,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
         if self.delegate.resumingEnabled {
             self.delegate.resumingEnabled = false
         }
-//        if !resumeButton.isHidden {
-//            UIView.animate(withDuration: 0.25,
-//                           animations: {
-//                            self.resumeButton.alpha = 0
-//            }, completion: { _ in
-//                self.resumeButton.isHidden = true
-//            })
-//        }
-
+        // TODO: add cameraUnavailableLabel
 //        if !cameraUnavailableLabel.isHidden {
 //            UIView.animate(withDuration: 0.25,
 //                           animations: {
