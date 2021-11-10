@@ -25,5 +25,7 @@
 	<string>We need the camera</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>You want sound in your videos, right?</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Let us save your videos!</string>
 </dict>
 </plist>

@@ -337,7 +337,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
 
     // MARK: - Recording
 
-    func toggleMovieRecording() {
+    func toggleRecording() {
         guard let movieFileOutput = self.movieFileOutput else {
             return
         }

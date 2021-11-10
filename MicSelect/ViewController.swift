@@ -7,12 +7,15 @@ class ViewController: UIViewController, CameraHelperDelegate {
 
     private lazy var recordButton = UIButton(type: .roundedRect).configure {
         $0.setTitle("Record", for: .normal)
+        $0.addTarget(self, action: #selector(toggleRecording), for: .touchUpInside)
     }
     private lazy var resumeButton = UIButton(type: .roundedRect).configure {
         $0.setTitle("Resume", for: .normal)
+        $0.addTarget(self, action: #selector(resumeInterruptedSession), for: .touchUpInside)
     }
     private lazy var cameraButton = UIButton(type: .roundedRect).configure {
         $0.setTitle("Switch Camera", for: .normal)
+        $0.addTarget(self, action: #selector(switchCamera), for: .touchUpInside)
     }
 
     private lazy var buttonStackView = UIStackView(
@@ -109,20 +112,20 @@ class ViewController: UIViewController, CameraHelperDelegate {
 
     // MARK: - Actions
 
-    @IBAction private func toggleMovieRecording(_ recordButton: UIButton) {
-        cameraHelper.toggleMovieRecording()
+    @objc private func toggleRecording(_ recordButton: UIButton) {
+        cameraHelper.toggleRecording()
     }
 
-    @IBAction private func switchCamera(_ cameraButton: UIButton) {
+    @objc private func switchCamera(_ cameraButton: UIButton) {
         cameraHelper.switchCamera()
     }
 
-    @IBAction private func resumeInterruptedSession(_ resumeButton: UIButton) {
+    @objc private func resumeInterruptedSession(_ resumeButton: UIButton) {
         cameraHelper.resumeInterruptedSession()
     }
 
     // add gesture recognizer
-    @IBAction private func focusAndExposeTap(_ gestureRecognizer: UITapGestureRecognizer) {
+    @objc private func focusAndExposeTap(_ gestureRecognizer: UITapGestureRecognizer) {
         let devicePoint = previewView.videoPreviewLayer.captureDevicePointConverted(
             fromLayerPoint: gestureRecognizer.location(in: gestureRecognizer.view)
         )
