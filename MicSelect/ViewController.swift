@@ -9,13 +9,13 @@ class ViewController: UIViewController, CameraHelperDelegate {
         $0.setTitle("Record", for: .normal)
         $0.addTarget(self, action: #selector(toggleRecording), for: .touchUpInside)
     }
-    private lazy var resumeButton = UIButton(type: .roundedRect).configure {
-        $0.setTitle("Resume", for: .normal)
-        $0.addTarget(self, action: #selector(resumeInterruptedSession), for: .touchUpInside)
-    }
     private lazy var cameraButton = UIButton(type: .roundedRect).configure {
         $0.setTitle("Switch Camera", for: .normal)
         $0.addTarget(self, action: #selector(switchCamera), for: .touchUpInside)
+    }
+    private lazy var resumeButton = UIButton(type: .roundedRect).configure {
+        $0.setTitle("Resume", for: .normal)
+        $0.addTarget(self, action: #selector(resumeInterruptedSession), for: .touchUpInside)
     }
 
     private lazy var buttonStackView = UIStackView(
@@ -94,12 +94,12 @@ class ViewController: UIViewController, CameraHelperDelegate {
         //recordButton.setImage(#imageLiteral(resourceName: "CaptureStop"), for: [])
     }
 
-    func resumingEnabled(_ enabled: Bool) {
-        resumeButton.isHidden = !enabled
-    }
-
     func cameraSwitchingEnabled(_ enabled: Bool) {
         cameraButton.isEnabled = enabled
+    }
+
+    func resumingEnabled(_ enabled: Bool) {
+        resumeButton.isHidden = !enabled
     }
 
     func resumeFailed() {
@@ -136,8 +136,8 @@ class ViewController: UIViewController, CameraHelperDelegate {
 
     private func setUpViews() {
         recordButton.isEnabled = false
-        resumeButton.isHidden = true
         cameraButton.isEnabled = false
+        resumeButton.isHidden = true
         isRecording(false)
 
         buttonStackView.heightAnchor.constraint(equalToConstant: 150).isActive = true

@@ -469,15 +469,19 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
         keyValueObservations.append(systemPressureStateObservation)
 
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(subjectAreaDidChange),
-                                               name: .AVCaptureDeviceSubjectAreaDidChange,
-                                               object: videoDeviceInput.device)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(subjectAreaDidChange),
+            name: .AVCaptureDeviceSubjectAreaDidChange,
+            object: videoDeviceInput.device
+        )
 
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(sessionRuntimeError),
-                                               name: .AVCaptureSessionRuntimeError,
-                                               object: session)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(sessionRuntimeError),
+            name: .AVCaptureSessionRuntimeError,
+            object: session
+        )
 
         /*
          A session can only run when the app is full screen. It will be interrupted
@@ -486,14 +490,18 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
          interruptions and show a preview is paused message. See the documentation
          of AVCaptureSessionWasInterruptedNotification for other interruption reasons.
          */
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(sessionWasInterrupted),
-                                               name: .AVCaptureSessionWasInterrupted,
-                                               object: session)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(sessionInterruptionEnded),
-                                               name: .AVCaptureSessionInterruptionEnded,
-                                               object: session)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(sessionWasInterrupted),
+            name: .AVCaptureSessionWasInterrupted,
+            object: session
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(sessionInterruptionEnded),
+            name: .AVCaptureSessionInterruptionEnded,
+            object: session
+        )
     }
 
     private func removeObservers() {
