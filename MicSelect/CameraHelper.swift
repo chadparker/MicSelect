@@ -4,9 +4,9 @@ import UIKit
 
 protocol CameraHelperDelegate: AnyObject {
     var windowOrientation: UIInterfaceOrientation { get }
-    func cameraSwitchingEnabled(_ enabled: Bool)
     func recordingEnabled(_ enabled: Bool)
     func isRecording(_ isRecording: Bool)
+    func cameraSwitchingEnabled(_ enabled: Bool)
     func resumingEnabled(_ enabled: Bool)
     func resumeFailed()
 }
@@ -38,9 +38,9 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
 
     private var keyValueObservations = [NSKeyValueObservation]()
 
-    private var cameraSwitchingEnabled = false { didSet { delegate.cameraSwitchingEnabled(cameraSwitchingEnabled) } }
     private var recordingEnabled: Bool = false { didSet { delegate.recordingEnabled(recordingEnabled) } }
     private var isRecording: Bool = false { didSet { delegate.isRecording(isRecording) } }
+    private var cameraSwitchingEnabled = false { didSet { delegate.cameraSwitchingEnabled(cameraSwitchingEnabled) } }
     private var resumingEnabled: Bool = false { didSet { delegate.resumingEnabled(resumingEnabled) } }
 
     var shouldAutorotate: Bool {
@@ -90,7 +90,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
         guard setupResult == .success else { return }
 
         session.beginConfiguration()
-        session.sessionPreset = .vga640x480
+        session.sessionPreset = .vga640x480 // this isn't working
 
         // Add video input
         do {
@@ -228,8 +228,8 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
     // MARK: - Device Configuration
 
     func switchCamera() {
-        cameraSwitchingEnabled = false
         recordingEnabled = false
+        cameraSwitchingEnabled = false
 
         sessionQueue.async {
             let currentVideoDevice = self.videoDeviceInput.device
@@ -291,8 +291,8 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
             }
 
             DispatchQueue.main.async {
-                self.cameraSwitchingEnabled = true
                 self.recordingEnabled = self.movieFileOutput != nil
+                self.cameraSwitchingEnabled = true
             }
         }
     }
@@ -442,10 +442,10 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
 
         DispatchQueue.main.async {
-            // Only enable the ability to change camera if the device has more than one camera.
-            self.cameraSwitchingEnabled = self.videoDeviceDiscoverySession.uniqueDevicePositionsCount > 1
             self.recordingEnabled = true
             self.isRecording = false
+            // Only enable the ability to change camera if the device has more than one camera.
+            self.cameraSwitchingEnabled = self.videoDeviceDiscoverySession.uniqueDevicePositionsCount > 1
         }
     }
 
@@ -456,9 +456,9 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
             guard let isSessionRunning = change.newValue else { return }
 
             DispatchQueue.main.async {
+                self.recordingEnabled = isSessionRunning && self.movieFileOutput != nil
                 // Only enable the ability to change camera if the device has more than one camera.
                 self.cameraSwitchingEnabled = isSessionRunning && self.videoDeviceDiscoverySession.uniqueDevicePositionsCount > 1
-                self.recordingEnabled = isSessionRunning && self.movieFileOutput != nil
             }
         }
         keyValueObservations.append(keyValueObservation)
