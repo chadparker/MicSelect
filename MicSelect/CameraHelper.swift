@@ -222,7 +222,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
 
     // MARK: - Device Configuration
 
-    func changeCamera(_ completion: @escaping () -> Void) {
+    func switchCamera() {
         sessionQueue.async {
             let currentVideoDevice = self.videoDeviceInput.device
             let currentPosition = currentVideoDevice.position
@@ -284,7 +284,6 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
 
             DispatchQueue.main.async {
                 self.delegate.recordingEnabled = self.movieFileOutput != nil
-                completion()
             }
         }
     }
