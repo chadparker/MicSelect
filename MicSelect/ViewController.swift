@@ -79,25 +79,24 @@ class ViewController: UIViewController, CameraHelperDelegate {
         view.window?.windowScene?.interfaceOrientation ?? .unknown
     }
 
-    var recordingEnabled: Bool = false {
-        didSet {
-            recordButton.isEnabled = recordingEnabled
-        }
+    func recordingEnabled(_ enabled: Bool) {
+        recordButton.isEnabled = enabled
     }
 
-    var isRecording: Bool = false {
-        didSet {
-            recordButton.isEnabled = true
-            if isRecording {
-                recordButton.setImage(#imageLiteral(resourceName: "CaptureStop"), for: [])
-            }
-        }
+    func isRecording(_ isRecording: Bool) {
+        recordButton.setTitle(
+            isRecording ? "Stop" : "Record",
+            for: .normal
+        )
+        //recordButton.setImage(#imageLiteral(resourceName: "CaptureStop"), for: [])
     }
 
-    var resumingEnabled: Bool = false {
-        didSet {
-            resumeButton.isHidden = !resumingEnabled
-        }
+    func resumingEnabled(_ enabled: Bool) {
+        resumeButton.isHidden = !enabled
+    }
+
+    func cameraSwitchingEnabled(_ enabled: Bool) {
+        cameraButton.isEnabled = enabled
     }
 
     func resumeFailed() {
@@ -106,12 +105,6 @@ class ViewController: UIViewController, CameraHelperDelegate {
         let cancelAction = UIAlertAction(title: NSLocalizedString("OK", comment: "Alert OK button"), style: .cancel, handler: nil)
         alertController.addAction(cancelAction)
         present(alertController, animated: true, completion: nil)
-    }
-
-    var cameraSwitchingEnabled: Bool = false {
-        didSet {
-
-        }
     }
 
     // MARK: - Actions
@@ -142,6 +135,7 @@ class ViewController: UIViewController, CameraHelperDelegate {
         recordButton.isEnabled = false
         resumeButton.isHidden = true
         cameraButton.isEnabled = false
+        isRecording(false)
 
         buttonStackView.heightAnchor.constraint(equalToConstant: 150).isActive = true
 

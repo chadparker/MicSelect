@@ -4,10 +4,10 @@ import UIKit
 
 protocol CameraHelperDelegate: AnyObject {
     var windowOrientation: UIInterfaceOrientation { get }
-    var cameraSwitchingEnabled: Bool { get set }
-    var recordingEnabled: Bool { get set }
-    var isRecording: Bool { get set }
-    var resumingEnabled: Bool { get set }
+    func cameraSwitchingEnabled(_ enabled: Bool)
+    func recordingEnabled(_ enabled: Bool)
+    func isRecording(_ isRecording: Bool)
+    func resumingEnabled(_ enabled: Bool)
     func resumeFailed()
 }
 
@@ -37,6 +37,11 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
     private var backgroundRecordingID: UIBackgroundTaskIdentifier?
 
     private var keyValueObservations = [NSKeyValueObservation]()
+
+    private var cameraSwitchingEnabled = false { didSet { delegate.cameraSwitchingEnabled(cameraSwitchingEnabled) } }
+    private var recordingEnabled: Bool = false { didSet { delegate.recordingEnabled(recordingEnabled) } }
+    private var isRecording: Bool = false { didSet { delegate.isRecording(isRecording) } }
+    private var resumingEnabled: Bool = false { didSet { delegate.resumingEnabled(resumingEnabled) } }
 
     var shouldAutorotate: Bool {
         // Disable autorotation of the interface when recording is in progress.
@@ -163,7 +168,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
             self.movieFileOutput = movieFileOutput
 
             DispatchQueue.main.async {
-                self.delegate.recordingEnabled = true
+                self.recordingEnabled = true
             }
         }
 
@@ -214,7 +219,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
                 }
             } else {
                 DispatchQueue.main.async {
-                    self.delegate.resumingEnabled = false
+                    self.resumingEnabled = false
                 }
             }
         }
@@ -223,8 +228,8 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
     // MARK: - Device Configuration
 
     func switchCamera() {
-        delegate.cameraSwitchingEnabled = false
-        delegate.recordingEnabled = false
+        cameraSwitchingEnabled = false
+        recordingEnabled = false
 
         sessionQueue.async {
             let currentVideoDevice = self.videoDeviceInput.device
@@ -286,8 +291,8 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
             }
 
             DispatchQueue.main.async {
-                self.delegate.cameraSwitchingEnabled = true
-                self.delegate.recordingEnabled = self.movieFileOutput != nil
+                self.cameraSwitchingEnabled = true
+                self.recordingEnabled = self.movieFileOutput != nil
             }
         }
     }
@@ -337,8 +342,8 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
             return
         }
 
-        delegate.recordingEnabled = false
-        delegate.cameraSwitchingEnabled = false
+        recordingEnabled = false
+        cameraSwitchingEnabled = false
 
         let videoPreviewLayerOrientation = previewView.videoPreviewLayer.connection?.videoOrientation
         sessionQueue.async {
@@ -375,8 +380,8 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
                     from connections: [AVCaptureConnection]) {
         // Enable the Record button to let the user stop recording.
         DispatchQueue.main.async {
-            self.delegate.recordingEnabled = true
-            self.delegate.isRecording = true
+            self.recordingEnabled = true
+            self.isRecording = true
         }
     }
 
@@ -438,9 +443,9 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
 
         DispatchQueue.main.async {
             // Only enable the ability to change camera if the device has more than one camera.
-            self.delegate.cameraSwitchingEnabled = self.videoDeviceDiscoverySession.uniqueDevicePositionsCount > 1
-            self.delegate.recordingEnabled = true
-            self.delegate.isRecording = false
+            self.cameraSwitchingEnabled = self.videoDeviceDiscoverySession.uniqueDevicePositionsCount > 1
+            self.recordingEnabled = true
+            self.isRecording = false
         }
     }
 
@@ -452,8 +457,8 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
 
             DispatchQueue.main.async {
                 // Only enable the ability to change camera if the device has more than one camera.
-                self.delegate.cameraSwitchingEnabled = isSessionRunning && self.videoDeviceDiscoverySession.uniqueDevicePositionsCount > 1
-                self.delegate.recordingEnabled = isSessionRunning && self.movieFileOutput != nil
+                self.cameraSwitchingEnabled = isSessionRunning && self.videoDeviceDiscoverySession.uniqueDevicePositionsCount > 1
+                self.recordingEnabled = isSessionRunning && self.movieFileOutput != nil
             }
         }
         keyValueObservations.append(keyValueObservation)
@@ -514,12 +519,12 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
                     self.isSessionRunning = self.session.isRunning
                 } else {
                     DispatchQueue.main.async {
-                        self.delegate.resumingEnabled = true
+                        self.resumingEnabled = true
                     }
                 }
             }
         } else {
-            self.delegate.resumingEnabled = true
+            self.resumingEnabled = true
         }
     }
 
@@ -575,7 +580,7 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
                 print("Session stopped running due to shutdown system pressure level.")
             }
             if showResumeButton {
-                self.delegate.resumingEnabled = true
+                self.resumingEnabled = true
             }
         }
     }
@@ -583,8 +588,8 @@ class CameraHelper: NSObject, AVCaptureFileOutputRecordingDelegate {
     @objc func sessionInterruptionEnded(notification: NSNotification) {
         print("Capture session interruption ended")
 
-        if self.delegate.resumingEnabled {
-            self.delegate.resumingEnabled = false
+        if self.resumingEnabled {
+            self.resumingEnabled = false
         }
         // TODO: add cameraUnavailableLabel
 //        if !cameraUnavailableLabel.isHidden {
