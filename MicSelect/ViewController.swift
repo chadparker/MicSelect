@@ -35,7 +35,7 @@ class ViewController: UIViewController, CameraControllerDelegate {
 
     // MARK: - Properties
 
-    private lazy var cameraHelper = CameraController(previewView: previewView)
+    private lazy var cameraController = CameraController(previewView: previewView)
 
     // MARK: - View Lifecycle
 
@@ -47,11 +47,11 @@ class ViewController: UIViewController, CameraControllerDelegate {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        cameraHelper.startSession()
+        cameraController.startSession()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
-        cameraHelper.stopSession()
+        cameraController.stopSession()
         super.viewWillDisappear(animated)
     }
 
@@ -68,7 +68,7 @@ class ViewController: UIViewController, CameraControllerDelegate {
     }
 
     override var shouldAutorotate: Bool {
-        cameraHelper.shouldAutorotate
+        cameraController.shouldAutorotate
     }
 
     // MARK: - CameraControllerDelegate
@@ -86,7 +86,6 @@ class ViewController: UIViewController, CameraControllerDelegate {
             isRecording ? "Stop" : "Record",
             for: .normal
         )
-        //recordButton.setImage(#imageLiteral(resourceName: "CaptureStop"), for: [])
     }
 
     func cameraSwitchingEnabled(_ enabled: Bool) {
@@ -108,22 +107,22 @@ class ViewController: UIViewController, CameraControllerDelegate {
     // MARK: - Actions
 
     @objc private func toggleRecording(_ recordButton: UIButton) {
-        cameraHelper.toggleRecording()
+        cameraController.toggleRecording()
     }
 
     @objc private func switchCamera(_ cameraButton: UIButton) {
-        cameraHelper.switchCamera()
+        cameraController.switchCamera()
     }
 
     @objc private func resumeInterruptedSession(_ resumeButton: UIButton) {
-        cameraHelper.resumeInterruptedSession()
+        cameraController.resumeInterruptedSession()
     }
 
     @objc private func focusAndExposeTap(_ gestureRecognizer: UITapGestureRecognizer) {
         let devicePoint = previewView.videoPreviewLayer.captureDevicePointConverted(
             fromLayerPoint: gestureRecognizer.location(in: gestureRecognizer.view)
         )
-        cameraHelper.focus(with: .autoFocus, exposureMode: .autoExpose, at: devicePoint, monitorSubjectAreaChange: true)
+        cameraController.focus(with: .autoFocus, exposureMode: .autoExpose, at: devicePoint, monitorSubjectAreaChange: true)
     }
 
     // MARK: - Methods
@@ -160,8 +159,8 @@ class ViewController: UIViewController, CameraControllerDelegate {
     }
 
     private func setUpCamera() {
-        previewView.session = cameraHelper.session
-        cameraHelper.delegate = self
-        cameraHelper.checkVideoAuthorization()
+        previewView.session = cameraController.session
+        cameraController.delegate = self
+        cameraController.checkVideoAuthorization()
     }
 }
