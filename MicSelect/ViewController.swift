@@ -5,6 +5,10 @@ class ViewController: UIViewController, CameraControllerDelegate {
 
     // MARK: - Views
 
+    private lazy var micModeButton = UIButton(type: .roundedRect).configure {
+        $0.setTitle("Mic Mode", for: .normal)
+        $0.addTarget(self, action: #selector(setMicMode), for: .touchUpInside)
+    }
     private lazy var recordButton = UIButton(type: .roundedRect).configure {
         $0.setTitle("Record", for: .normal)
         $0.addTarget(self, action: #selector(toggleRecording), for: .touchUpInside)
@@ -19,7 +23,7 @@ class ViewController: UIViewController, CameraControllerDelegate {
     }
 
     private lazy var buttonStackView = UIStackView(
-        arrangedSubviews: [resumeButton, recordButton, cameraButton]
+        arrangedSubviews: [resumeButton, recordButton, micModeButton, cameraButton]
     ).configure {
         $0.axis = .horizontal
         $0.distribution = .fillEqually
@@ -105,6 +109,10 @@ class ViewController: UIViewController, CameraControllerDelegate {
     }
 
     // MARK: - Actions
+
+    @objc private func setMicMode(_ button: UIButton) {
+        AVCaptureDevice.showSystemUserInterface(.microphoneModes)
+    }
 
     @objc private func toggleRecording(_ recordButton: UIButton) {
         cameraController.toggleRecording()
