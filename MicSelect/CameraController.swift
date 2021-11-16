@@ -90,7 +90,6 @@ class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
         guard setupResult == .success else { return }
 
         session.beginConfiguration()
-        session.sessionPreset = .vga640x480 // this isn't working
 
         // Add video input
         do {
@@ -156,7 +155,7 @@ class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
         let movieFileOutput = AVCaptureMovieFileOutput()
         if self.session.canAddOutput(movieFileOutput) {
             self.session.addOutput(movieFileOutput)
-            self.session.sessionPreset = .high
+            self.session.sessionPreset = .vga640x480
 
             if let connection = movieFileOutput.connection(with: .video) {
                 if connection.isVideoStabilizationSupported {
